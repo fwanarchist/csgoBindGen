@@ -36,7 +36,8 @@
 			out += "alias -menuUp menuSelect" + (text.length - 1) + "\n";
 			out += "alias -menuDown menuSelect1\n";
 			out += "alias -menuSelect bindSelectBind0\n";
-			out += "alias -menuBind \"echo <BindMenu>No Bind Selected\"\n";
+			out += "alias -menuBind noBindSelected\n";
+			out += "alias noBindSelected \"echo <BindMenu>No Bind Selected\"";
 			out += "\n//Menu Selectors:\n";
 			for (var i = 0; i < text.length; i++) {
 				out += "alias menuSelect" + i + " \"alias -menuUp menuSelect" + ((i - 1 + text.length) % text.length) + ";alias -menuDown menuSelect" + ((i + 1 + text.length) % text.length) + ";alias -menuSelect bindSelectBind" + i + ";";
@@ -56,9 +57,14 @@
 			}
 			out += "\n//Bind Text:\n";
 			for (var i = 0; i < text.length; i++) {
-				for (var j = 0; j < text[i].textArray.length; j++) {
-					out += "alias " + text[i].alias + j + " \"echo <BindMenu>Saying Line: " + (j + 1) + "/" + text[i].textArray.length + " in " + text[i].alias + "; say " + text[i].textArray[j] + "; alias -menuBind " + text[i].alias + ((j + 1) % text[i].textArray.length) + ";\"\n";
-				}
+			    for (var j = 0; j < text[i].textArray.length; j++) {
+			        if (j == text[i].textArray.length - 1) {
+			            out += "alias " + text[i].alias + j + " \"echo <BindMenu>Saying Line: " + (j + 1) + "/" + text[i].textArray.length + " in " + text[i].alias + ". Bind Completed!; say " + text[i].textArray[j] + "; alias -menuBind noBindSelected;\"\n";
+			        }
+			        else {
+			            out += "alias " + text[i].alias + j + " \"echo <BindMenu>Saying Line: " + (j + 1) + "/" + text[i].textArray.length + " in " + text[i].alias + "; say " + text[i].textArray[j] + "; alias -menuBind " + text[i].alias + ((j + 1) % text[i].textArray.length) + ";\"\n";
+			        }
+			    }
 			}
 			
 			var exp = "";
