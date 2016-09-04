@@ -60,15 +60,16 @@
 					out += "alias " + text[i].alias + j + " \"echo <BindMenu>Saying Line: " + (j + 1) + "/" + text[i].textArray.length + " in " + text[i].alias + "; say " + text[i].textArray[j] + "; alias -menuBind " + text[i].alias + ((j + 1) % text[i].textArray.length) + ";\"\n";
 				}
 			}
-			document.getElementById("output").value = out;
+			
 			var exp = "";
 			for (var i = 0; i < text.length; i++) {
 				exp += "text[text.length]={ alias:\"" + text[i].alias + "\",textArray:[";
 				for(var j = 0; j < text[i].textArray.length; j++){
 					exp += "\"" + text[i].textArray[j] + "\",";
 				}
-				exp += "]};addRemoveBindSelect(\""+text[i].alias+"\");\n";
+				exp += "]};addRemoveBindSelect(\""+text[i].alias+"\");";
 			}
+			document.getElementById("output").value = out + "\n//Import Code (don't copy the //):\n//" + exp;
 			document.getElementById("export").value = exp;
 		}
 		function removeBind() {
