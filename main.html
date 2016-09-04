@@ -61,10 +61,31 @@
 				}
 			}
 			document.getElementById("output").value = out;
+			var exp = "";
+			for (var i = 0; i < text.length; i++) {
+				exp += "text[text.length]={ alias:\"" + text[i].alias + "\",textArray:[";
+				for(var j = 0; j < text[i].textArray.length; j++){
+					exp += "\"" + text[i].textArray[j] + "\",";
+				}
+				exp += "]};addRemoveBindSelect(\""+text[i].alias+"\");\n";
+			}
+			document.getElementById("export").value = exp;
 		}
 		function removeBind() {
 			text.splice(document.getElementById("removeBindSelect").selectedIndex, 1);
 			document.getElementById("removeBindSelect").remove(document.getElementById("removeBindSelect").selectedIndex);
+			document.getElementById("bindList").value = "";
+			for (var i = 0; i < text.length; i++) {
+				document.getElementById("bindList").value += text[i].alias + "\n";
+			}
+		}
+		function addRemoveBindSelect(s) {
+			var tempOption = document.createElement("option");
+			tempOption.text = s;
+			document.getElementById("removeBindSelect").add(tempOption);
+		}
+		function importBinds() {
+			eval(document.getElementById("import").value);
 			document.getElementById("bindList").value = "";
 			for (var i = 0; i < text.length; i++) {
 				document.getElementById("bindList").value += text[i].alias + "\n";
@@ -97,6 +118,11 @@
 		</tr>
 	</table>
 	Output:<br />
-	<textarea id="output" readonly cols="100" rows="15"></textarea>
+	<textarea id="output" readonly cols="100" rows="15"></textarea><br />
+	Export:<br />
+	<textarea id="export" readonly cols="100" rows="15"></textarea><br />
+	Import:<br />
+	<textarea id="import" cols="100" rows="15"></textarea><br />
+	<button onclick=importBinds()>Import</button><br />
 </body>
 </html>
