@@ -134,6 +134,67 @@
 			}
 			document.getElementById("import").value = "";
 		}
+		function generateRandomBind() {
+			var rand_length = 5000;
+			var rand_chance = 0.02;
+			
+			var ran = "host_writeconfig random_backup\n";
+
+			ran += "\nbind w +random_w\n";
+			ran += "bind a +random_a\n";
+			ran += "bind s +random_s\n";
+			ran += "bind d +random_d\n";
+			ran += "bind mouse1 +random_fire\n";
+			
+			ran += "\nalias step_message \"say *steps on a landmine*\"\n";
+			ran += "alias avoid_message \"say *avoids a landmine*\"\n";
+			
+			ran += "alias load_message \"say Minesweeper CS:GO Edition Loaded!\"\n";
+			
+			ran += "\nalias +suprise_fire detonate_0\n";
+			ran += "alias -suprise_fire detonate_0\n";
+			
+			ran += "\nalias detonate_0 \"step_message;\"\n";
+			ran += "alias detonate_1 \"disconnect\"\n";
+			
+			ran += "\nalias +random_w \"+forward;random\"\n";
+			ran += "alias -random_w \"-forward;random\"\n";
+			ran += "alias +random_a \"+moveleft;random\"\n";
+			ran += "alias -random_a \"-moveleft;random\"\n";
+			ran += "alias +random_s \"+back;random\"\n";
+			ran += "alias -random_s \"-back;random\"\n";
+			ran += "alias +random_d \"+moveright;random\"\n";
+			ran += "alias -random_d \"-moveright;random\"\n";
+			ran += "alias +random_fire \"+attack;\"\n";
+			ran += "alias -random_fire \"-attack;random\"\n";
+			
+			
+			ran += "\nalias suprise_disconnect_on \"bind mouse1 +suprise_fire\"\n";
+			ran += "alias suprise_disconnect_off \"bind mouse1 +random_fire\"\n";
+
+			ran += "\nalias random random_0_0\n";
+			
+			for(var i = 0; i < rand_length; i++){
+				if(Math.random() > 1-rand_chance){
+					ran += "alias random_" + (i) + "_0 \"suprise_disconnect_on; alias random random_" + (i) + "_1\"\n";
+					ran += "alias random_" + (i) + "_1 \"suprise_disconnect_off; avoid_message; alias random random_" + (i+1) + "_0\"\n";
+				} else {
+					ran += "alias random_" + (i) + "_0 \"suprise_disconnect_off; alias random random_" + (i+1) + "_0\"\n";
+				}
+			}
+			
+			if(Math.random() > 1-rand_chance){
+				ran += "alias random_" + (rand_length) + "_0 \"suprise_disconnect_on; alias random random_" + (rand_length) + "_1\"\n";
+				ran += "alias random_" + (rand_length) + "_1 \"suprise_disconnect_off; avoid_message; alias random random_" + 0 + "_0\"\n";
+			} else {
+				ran += "alias random_" + (rand_length) + "_0 \"suprise_disconnect_off; alias random random_" + 0 + "_0\"\n";
+			}
+
+			ran += "\nload_message\n";
+			
+			document.getElementById("random").value = ran;
+			
+		}
 	</script>
 </head>
 <body>
@@ -167,5 +228,8 @@
 	Import:<br />
 	<textarea id="import" cols="100" rows="15"></textarea><br />
 	<button onclick=importBinds()>Import</button><br />
+	Random Bullshit:<br />
+	<textarea id="random" cols="100" rows="15"></textarea><br />
+	<button onclick=generateRandomBind()>Generate</button><br />
 </body>
 </html>
