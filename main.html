@@ -135,10 +135,12 @@
 			document.getElementById("import").value = "";
 		}
 		function generateRandomBind() {
-			var rand_length = 5000;
-			var rand_chance = 0.02;
+			var rand_levels = 10;
+			var rand_level_length = 500;
+			var rand_chance = 0.01;
+			var rand_chance_inc = 0.005;
 			
-			var ran = "host_writeconfig random_backup\n";
+			var ran = "host_writeconfig minesweeper_backup\n";
 
 			ran += "\nbind w +random_w\n";
 			ran += "bind a +random_a\n";
@@ -148,14 +150,17 @@
 			
 			ran += "\nalias step_message \"say *steps on a landmine*\"\n";
 			ran += "alias avoid_message \"say *avoids a landmine*\"\n";
-			
 			ran += "alias load_message \"say Minesweeper CS:GO Edition Loaded!\"\n";
+			ran += "alias win_message \"say Level " + rand_levels + " Completed! You Win!\"\n";
+			ran += "alias gameover_message_0 \"echo Thanks for playing Minesweeper CS:GO Edition!\"\n";
+			ran += "alias gameover_message_1 \"echo Better Luck Next Time!\"\n";
+			ran += "alias gameover_message_2 \"echo Your config has been restored.\"\n";
 			
 			ran += "\nalias +suprise_fire detonate_0\n";
 			ran += "alias -suprise_fire detonate_0\n";
 			
-			ran += "\nalias detonate_0 \"step_message;\"\n";
-			ran += "alias detonate_1 \"disconnect\"\n";
+			ran += "\nalias detonate_0 \"step_message;bind w detonate_1; bind a detonate_1;bind s detonate_1;bind d detonate_1;bind mouse1 detonate_1;bind mouse2 detonate_1\"\n";
+			ran += "alias detonate_1 \"disconnect;exec minesweeper_backup;toggleconsole;gameover_message_0;gameover_message_1;gameover_message_2\"\n";
 			
 			ran += "\nalias +random_w \"+forward;random\"\n";
 			ran += "alias -random_w \"-forward;random\"\n";
@@ -166,29 +171,31 @@
 			ran += "alias +random_d \"+moveright;random\"\n";
 			ran += "alias -random_d \"-moveright;random\"\n";
 			ran += "alias +random_fire \"+attack;\"\n";
-			ran += "alias -random_fire \"-attack;random\"\n";
+			ran += "alias -random_fire \"-attack;random\"\n\n";
 			
+			for(var level = 1; level <= rand_levels; level++){
+				ran += "alias level_message_" + (level) + " \"say Level " + (level) + " Reached! Mine Frequency: " + Math.round((rand_chance + rand_chance_inc * (level-1))*1000)/1000 + "\"\n";
+			}
 			
 			ran += "\nalias suprise_disconnect_on \"bind mouse1 +suprise_fire\"\n";
 			ran += "alias suprise_disconnect_off \"bind mouse1 +random_fire\"\n";
 
-			ran += "\nalias random random_0_0\n";
+			ran += "\nalias random random_1_0_0\n";
 			
-			for(var i = 0; i < rand_length; i++){
-				if(Math.random() > 1-rand_chance){
-					ran += "alias random_" + (i) + "_0 \"suprise_disconnect_on; alias random random_" + (i) + "_1\"\n";
-					ran += "alias random_" + (i) + "_1 \"suprise_disconnect_off; avoid_message; alias random random_" + (i+1) + "_0\"\n";
-				} else {
-					ran += "alias random_" + (i) + "_0 \"suprise_disconnect_off; alias random random_" + (i+1) + "_0\"\n";
+			for(var level = 1; level <=  rand_levels; level++ ){
+				ran += "alias random_" + (level) + "_0_0 \"suprise_disconnect_off;level_message_" + (level) + ";alias random random_" + (level) + "_1_0\"\n";
+				for(var i = 1; i < rand_level_length; i++){
+					if(Math.random() > 1-(rand_chance + rand_chance_inc * (level-1))){
+						ran += "alias random_" + (level) + "_" + (i) + "_0 \"suprise_disconnect_on; alias random random_" + (level) + "_" + (i) + "_1\"\n";
+						ran += "alias random_" + (level) + "_" + (i) + "_1 \"suprise_disconnect_off; avoid_message; alias random random_" + (level) + "_" + (i+1) + "_0\"\n";
+					} else {
+						ran += "alias random_" + (level) + "_" + (i) + "_0 \"suprise_disconnect_off; alias random random_" + (level) + "_" + (i+1) + "_0\"\n";
+					}
 				}
+				ran += "alias random_" + (level) + "_" + (rand_level_length) + "_0 \"suprise_disconnect_off; alias random random_" + (level+1) + "_0_0\"\n";
 			}
+			ran += "alias random_" + (rand_levels+1) + "_0_0 \"exec minesweeper_backup; win_message \"\n";
 			
-			if(Math.random() > 1-rand_chance){
-				ran += "alias random_" + (rand_length) + "_0 \"suprise_disconnect_on; alias random random_" + (rand_length) + "_1\"\n";
-				ran += "alias random_" + (rand_length) + "_1 \"suprise_disconnect_off; avoid_message; alias random random_" + 0 + "_0\"\n";
-			} else {
-				ran += "alias random_" + (rand_length) + "_0 \"suprise_disconnect_off; alias random random_" + 0 + "_0\"\n";
-			}
 
 			ran += "\nload_message\n";
 			
