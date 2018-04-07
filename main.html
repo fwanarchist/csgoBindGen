@@ -16,11 +16,42 @@
 			document.getElementById("output").value = output;
 		}
 		function goText() {
+			var textRaw = document.getElementById("text").value.trim();
+			textRaw = textRaw.replace(/;/g,",").replace(/\/\//g," ").replace(/"/g,"'");
 			text[text.length] = {
 				text:document.getElementById("text").value.trim(),
 				alias:document.getElementById("alias").value.trim(),
-				textArray:document.getElementById("text").value.trim().split("\n")
+				textArray:textRaw.split("\n")
 			};
+			var flag = 1;
+			while(flag){
+				flag = 0;
+				for(var i = 0; i < text[text.length-1].textArray.length; i++){
+					if(text[text.length-1].textArray[i].trim() == ""){
+						text[text.length-1].textArray.splice(i,1);
+						flag = 1;
+						break;
+					}
+				}
+			}
+			flag = 1;
+			while(flag){
+				flag = 0;
+				for(var i = 0; i < text[text.length-1].textArray.length; i++){
+					if(text[text.length-1].textArray[i].trim().length > 128){
+						var splitIndex = text[text.length-1].textArray[i].trim().lastIndexOf(" ",127);
+						if(splitIndex == -1){
+							splitIdex = 127;
+						}
+						var firstSplit = text[text.length-1].textArray[i].trim().substring(0,splitIndex).trim();
+						var secondSplit = text[text.length-1].textArray[i].trim().substring(splitIndex+1,text[text.length-1].textArray[i].trim().length).trim();
+						text[text.length-1].textArray.splice(i,1,firstSplit);
+						text[text.length-1].textArray.splice(i+1,0,secondSplit);
+						flag = 1;
+						break;
+					}
+				}
+			}
 			document.getElementById("bindList").value += text[text.length - 1].alias + "\n";
 			var tempOption = document.createElement("option");
 			tempOption.text = text[text.length - 1].alias;
@@ -102,16 +133,55 @@
 			    }
 			}
 			
-			var exp = "";
+			var exp = "document.getElementById(\"up\").value=\""+document.getElementById("up").value+"\";";
+			exp += "document.getElementById(\"down\").value=\""+document.getElementById("down").value+"\";";
+			exp += "document.getElementById(\"select\").value=\""+document.getElementById("select").value+"\";";
+			exp += "document.getElementById(\"bind\").value=\""+document.getElementById("bind").value+"\";";
 			for (var i = 0; i < text.length; i++) {
 				exp += "text[text.length]={ alias:\"" + text[i].alias + "\",textArray:[";
 				for(var j = 0; j < text[i].textArray.length; j++){
-					exp += "\"" + text[i].textArray[j] + "\",";
+					exp += "\"" + text[i].textArray[j].replace(/"/g,"\\\"").replace(/\\/g,"\\\\") + "\",";
 				}
 				exp += "]};addRemoveBindSelect(\""+text[i].alias+"\");";
 			}
-			document.getElementById("output").value = out + "\n//Import Code (don't copy the //):\n//" + exp;
-			document.getElementById("export").value = exp;
+			if(out.length > 1000000){
+				var outArray = [];
+				outArray[0] = out;
+				var flag = 1;
+				while(flag){
+					flag = 0;
+					for(var i = 0; i < outArray.length; i++){
+						if(outArray[i].trim().length > 1000000){
+							var splitIndex = outArray[i].trim().lastIndexOf("\n",1000000);
+							var firstSplit = outArray[i].trim().substring(0,splitIndex).trim();
+							var secondSplit = outArray[i].trim().substring(splitIndex,outArray[i].trim().length).trim();
+							outArray.splice(i,1,firstSplit);
+							outArray.splice(i+1,0,secondSplit);
+							flag = 1;
+							break;
+						}
+					}
+				}
+				for(var i = 0; i < outArray.length; i++){
+					if(document.getElementById("output_"+i)){
+						document.getElementById("output_"+i).value = outArray[i];
+					}
+					else {
+						var outTextArea = document.createElement("TEXTAREA");
+						outTextArea.cols = "100";
+						outTextArea.creadOnly = true;
+						outTextArea.rows = "15";
+						outTextArea.id = "output_" + i;
+						document.getElementById("outputs").appendChild(outTextArea);
+						outTextArea.value = outArray[i];
+					}
+				}
+			}
+			else {
+				document.getElementById("output_0").value = out;
+				document.getElementById("export").value = exp;
+			}
+			
 		}
 		function removeBind() {
 			text.splice(document.getElementById("removeBindSelect").selectedIndex, 1);
@@ -135,17 +205,14 @@
 			document.getElementById("import").value = "";
 		}
 		function generateRandomBind() {
-<<<<<<< HEAD
 			var rand_levels = 10;
 			var rand_level_length = 500;
 			var rand_chance = 0.01;
 			var rand_chance_inc = 0.005;
-=======
 			var ms_level_count = 10;
 			var ms_level_length = 500;
 			var ms_chance_base = 0.01;
 			var ms_chance_inc = 0.005;
->>>>>>> c6a3005a6595b6eb917815ca7af38e82e3afb69c
 			
 			var ran = "host_writeconfig minesweeper_backup\n";
 
@@ -155,8 +222,6 @@
 			ran += "bind d +minesweeper_d\n";
 			ran += "bind mouse1 +minesweeper_mouse1\n";
 			ran += "bind mouse2 +minesweeper_mouse2\n";
-			
-<<<<<<< HEAD
 			ran += "\nalias step_message \"say *steps on a landmine*\"\n";
 			ran += "alias avoid_message \"say *avoids a landmine*\"\n";
 			ran += "alias load_message \"say Minesweeper CS:GO Edition Loaded!\"\n";
@@ -185,7 +250,6 @@
 			for(var level = 1; level <= rand_levels; level++){
 				ran += "alias level_message_" + (level) + " \"say Level " + (level) + " Reached! Mine Frequency: " + Math.round((rand_chance + rand_chance_inc * (level-1))*1000)/1000 + "\"\n";
 			}
-=======
 			ran += "\nalias minesweeper_step_message \"say *steps on a landmine*\"\n";
 			ran += "alias minesweeper_avoid_message \"say *avoids a landmine*\"\n";
 			ran += "alias minesweeper_load_message \"say Minesweeper CS:GO Edition Loaded!\"\n";
@@ -210,12 +274,9 @@
 			ran += "alias -minesweeper_mouse1 \"-attack;minesweeper_rand\"\n";
 			ran += "alias +minesweeper_mouse2 \"+attack2;minesweeper_rand\"\n";
 			ran += "alias -minesweeper_mouse2 \"-attack2;minesweeper_rand\"\n";
->>>>>>> c6a3005a6595b6eb917815ca7af38e82e3afb69c
 			
 			ran += "\nalias minesweeper_mine_on \"bind mouse1 +minesweeper_det_0\"\n";
 			ran += "alias minesweeper_mine_off \"bind mouse1 +minesweeper_mouse1\"\n";
-
-<<<<<<< HEAD
 			ran += "\nalias random random_1_0_0\n";
 			
 			for(var level = 1; level <=  rand_levels; level++ ){
@@ -232,7 +293,6 @@
 			}
 			ran += "alias random_" + (rand_levels+1) + "_0_0 \"exec minesweeper_backup; win_message \"\n";
 			
-=======
 			ran += "\nalias minesweeper_rand minesweeper_rand_0_0\n";
 			for(var level = 1; level <= ms_level_count; level++){
 				ran += "alias minesweeper_rand_" + (level) + "_0_0 \"minesweeper_mine_off;minesweeper_level_message_" + (level) + ";alias minesweeper_rand minesweeper_rand_" + (level) + "_1_0\"\n";
@@ -247,7 +307,6 @@
 				ran += "alias minesweeper_rand_" + (level) + "_" + (ms_level_length) + "_0 \"minesweeper_mine_off; alias minesweeper_rand minesweeper_rand_" + (level+1) + "_0_0\"\n";
 			}
 			ran += "alias minesweeper_rand_" + (ms_level_count + 1) + "_0_0 \"minesweeper_win_message;exec minesweeper_backup;\"\n";
->>>>>>> c6a3005a6595b6eb917815ca7af38e82e3afb69c
 
 			ran += "\nminesweeper_load_message\n";
 			
@@ -280,8 +339,9 @@
 		</tr>
 	</table>
 	<button onClick=goMenu()>Generate Code</button><br />
-	Output:<br />
-	<textarea id="output" readonly cols="100" rows="15"></textarea><br />
+	Output:<p id = "outputs">
+		<textarea id="output_0" readonly cols="100" rows="15"></textarea>
+	<p />
 	Export:<br />
 	<textarea id="export" readonly cols="100" rows="15"></textarea><br />
 	Import:<br />
