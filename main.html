@@ -58,85 +58,65 @@
 			document.getElementById("removeBindSelect").add(tempOption);
 		}
 		function goMenu() {
-			var out = "bind " + document.getElementById("up").value.trim() + " +menuUp\n";
-			out += "bind " + document.getElementById("down").value.trim() + " +menuDown\n";
-			out += "bind " + document.getElementById("select").value.trim() + " +menuSelect\n";
-			out += "bind " + document.getElementById("bind").value.trim() + " +menuBind\n";
+			var out = "bind " + document.getElementById("show").value.trim() + " +BindMenu_Show\n";
+			out += "bind " + document.getElementById("say").value.trim() + " BindMenu_Say\n";
 			out += "cl_showfps 0\ndeveloper 1\ncon_filter_enable 0\ncon_filter_text \"\"\ncon_filter_text_out \"\"\n";
-			out += "alias +menuUp clear\nalias +menuDown clear\nalias +menuSelect clear\nalias +menuBind clear\n";
-			out += "alias -menuUp menuSelect" + (text.length - 1) + "\n";
-			out += "alias -menuDown menuSelect1\n";
-			out += "alias -menuSelect bindSelectBind0\n";
-			out += "alias -menuBind noBindSelected\n";
-			out += "alias noBindSelected \"echo <BindMenu>No Bind Selected\"";
-			out += "\n//Menu Selectors:\n";
-			var longestAliasLength = 0;
+			out += "alias +BindMenu_Show \"bind mwheelup BindMenu_Up;bind mwheeldown BindMenu_Down;bind " + document.getElementById("say").value.trim() + " BindMenu_ResetBind;BindMenu_Echo\"\n";
+			out += "alias -BindMenu_Show \"bind mwheelup +jump;bind mwheeldown +jump;bind " + document.getElementById("say").value.trim() +" BindMenu_Say;BindMenu_Select;\"\n";
+			out += "alias BindMenu_Up BindMenu_SetMenu_" + (text.length - 1) + "\n";
+			out += "alias BindMenu_Down BindMenu_SetMenu_1\n";
+			out += "alias BindMenu_Echo BindMenu_Echo_0\n";
+			out += "alias BindMenu_Select BindMenu_Select_0\n";
+			out += "alias BindMenu_Deselect \"clear;echo <BindMenu>Bind Deselected!;alias BindMenu_Say BindMenu_NoBindSelected\"\n";
+			out += "alias BindMenu_Say BindMenu_NoBindSelected\n";
+			out += "alias BindMenu_ResetBind BindMenu_ResetBind_0\n";
+			out += "alias BindMenu_NoBindSelected \"clear;echo <BindMenu>No Bind Selected!\"\n";
+			
+			out += "\n//SetMenu\n";
 			for (var i = 0; i < text.length; i++) {
-			    if (text[i].alias.length > longestAliasLength) {
-			        longestAliasLength = text[i].alias.length;
-			    }
+			    out += "alias BindMenu_SetMenu_" + i + " \"clear;alias BindMenu_Up BindMenu_SetMenu_" + ((i-1)%text.length+text.length)%text.length + ";alias BindMenu_Down BindMenu_SetMenu_" + ((i+1)%text.length) + ";alias BindMenu_Select BindMenu_Select_" + i + ";alias BindMenu_Echo BindMenu_Echo_" + i + ";alias BindMenu_ResetBind BindMenu_ResetBind_" + i + ";BindMenu_Echo_" + i + "\"\n";
 			}
+			
+			
+			out += "\n//Select\n";
 			for (var i = 0; i < text.length; i++) {
-			    out += "alias menuSelect" + i + " \"alias -menuUp menuSelect" + ((i - 1 + text.length) % text.length) + ";alias -menuDown menuSelect" + ((i + 1 + text.length) % text.length) + ";alias -menuSelect bindSelectBind" + i + ";";
-			    var bindsPerLine = (Math.floor(text.length / 6))?(Math.floor(text.length / 6)):1;
-			    for (var j = 0; j < text.length; j += bindsPerLine) {
-			        for (var k = 0; k < bindsPerLine-1; k++) {
-			            if (text[j + k]) {
-			                if (i == j+k) {
-			                    out += "echo |->|<BindMenu>" + text[j+k].alias;
-			                    for (var l = 0; l < longestAliasLength - text[j+k].alias.length; l++) {
-			                        out += "-";
-			                    }
-			                }
-			                else {
-			                    out += "echo |..|<BindMenu>" + text[j+k].alias;
-			                    for (var l = 0; l < longestAliasLength - text[j+k].alias.length; l++) {
-			                        out += "-";
-			                    }
-			                }
-			            }
-			        }
-					if(text[j+bindsPerLine-1]){
-					    if (i == j+bindsPerLine-1) {
-					        out += "|->|<BindMenu>" + text[j+bindsPerLine-1].alias + ";";
-				    	}
-				    	else {
-				    	    out += "|..|<BindMenu>" + text[j+bindsPerLine-1].alias + ";";
-				    	}
-					}
-					else {
-                        out += ";"
-					}
+			    out += "alias BindMenu_Select_" + i + " \"clear;echo <BindMenu>Bind: " + text[i].alias + " selected!;alias BindMenu_Say BindMenu_SaveSlot_" + i + "\"\n";
+			}
+			
+			
+			out += "\n//Echo\n";
+			for (var i = 0; i < text.length; i++) {
+				out += "alias BindMenu_Echo_" + i + " \"clear;";
+			    for(var j = -2; j <= 3; j++){
+					out += "echo <BindMenu>|" + ((j)?(".."):("->")) + "|" + text[((i+j)%text.length+text.length)%text.length].alias + ";";
 				}
 				out += "\"\n";
 			}
-
-			out += "\n//Bind Selectors:\n";
+			
+			out += "\n//SaveSlots\n";
 			for (var i = 0; i < text.length; i++) {
-			    out += "alias bindSelectBind" + i + " \"echo <BindMenu>" + text[i].alias + " selected!; alias -menuBind bindSaveSpot" + i + ";\"\n";
+			    out += "alias BindMenu_SaveSlot_" + i + " BindMenu_Bind_" + i + "_0\n";
 			}
-
-			out += "\n//Bind Save Spots:\n";
+			
+			out += "\n//Reset\n";
 			for (var i = 0; i < text.length; i++) {
-			    out += "alias bindSaveSpot" + i + " " + text[i].alias + "0;\n";
+			    out += "alias BindMenu_ResetBind_" + i + " \"alias BindMenu_SaveSlot_" + i + " BindMenu_Bind_" + i + "_0;clear;echo <BindMenu>Reset Bind: " + text[i].alias + "!\"\n";
 			}
 
 			out += "\n//Bind Text:\n";
 			for (var i = 0; i < text.length; i++) {
 			    for (var j = 0; j < text[i].textArray.length; j++) {
 			        if (j == text[i].textArray.length - 1) {
-			            out += "alias " + text[i].alias + j + " \"echo <BindMenu>Saying Line: " + (j + 1) + "/" + text[i].textArray.length + " in " + text[i].alias + ". Bind Completed!; say " + text[i].textArray[j] + "; alias -menuBind noBindSelected; alias bindSaveSpot" + i + " " + text[i].alias + "0\"\n";
+			            out += "alias BindMenu_Bind_" + i + "_" + j + " \"clear;echo <BindMenu>Saying Line: " + (j + 1) + "/" + text[i].textArray.length + " in " + text[i].alias + ". Bind Completed!; say " + text[i].textArray[j] + "; alias BindMenu_Say BindMenu_NoBindSelected; alias BindMenu_SaveSlot_" + i + " BindMenu_Bind_" + i + "_0\"\n";
 			        }
 			        else {
-			            out += "alias " + text[i].alias + j + " \"echo <BindMenu>Saying Line: " + (j + 1) + "/" + text[i].textArray.length + " in " + text[i].alias + "; say " + text[i].textArray[j] + "; alias bindSaveSpot" + i + " " + text[i].alias + ((j + 1) % text[i].textArray.length) + ";\"\n";
+			            out += "alias BindMenu_Bind_" + i + "_" + j + " \"clear;echo <BindMenu>Saying Line: " + (j + 1) + "/" + text[i].textArray.length + " in " + text[i].alias + "; say " + text[i].textArray[j] + "; alias BindMenu_SaveSlot_" + i + " BindMenu_Bind_" + i + "_" + (j+1) + ";\"\n";
 			        }
 			    }
 			}
 			
-			var exp = "document.getElementById(\"up\").value=\""+document.getElementById("up").value+"\";";
-			exp += "document.getElementById(\"down\").value=\""+document.getElementById("down").value+"\";";
-			exp += "document.getElementById(\"select\").value=\""+document.getElementById("select").value+"\";";
-			exp += "document.getElementById(\"bind\").value=\""+document.getElementById("bind").value+"\";";
+			var exp = "document.getElementById(\"say\").value=\""+document.getElementById("say").value+"\";";
+			exp += "document.getElementById(\"show\").value=\""+document.getElementById("show").value+"\";";
 			for (var i = 0; i < text.length; i++) {
 				exp += "text[text.length]={ alias:\"" + text[i].alias + "\",textArray:[";
 				for(var j = 0; j < text[i].textArray.length; j++){
@@ -321,10 +301,8 @@
 		<tr>
 			<td>
 				<h2>Menu:</h2>
-				Up: <input type="text" id="up"><br />
-				Down: <input type="text" id="down"><br />
-				Select: <input type="text" id="select"><br />
-				Bind: <input type="text" id="bind"><br />
+				Show Menu: <input type="text" id="show"><br />
+				Say Bind: <input type="text" id="say"><br />
 				<textarea id="bindList" readonly cols="50" rows="15"></textarea><br />
 				Remove a Bind:<br />
 				<select id="removeBindSelect"></select><button onclick=removeBind()>Remove</button>
@@ -333,7 +311,7 @@
 				<h2>Entries:</h2>
 				Text:<br />
 				<textarea id="text" cols="50" rows="15"></textarea><br />
-				Alias: <input type="text" id="alias"><br />
+				Alias: <input type="text" id="alias" maxlength="20"><br />
 				<button onClick=goText()>Add Bind</button><br />
 			</td>
 		</tr>
