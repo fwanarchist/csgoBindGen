@@ -184,115 +184,6 @@
 			}
 			document.getElementById("import").value = "";
 		}
-		function generateRandomBind() {
-			var rand_levels = 10;
-			var rand_level_length = 500;
-			var rand_chance = 0.01;
-			var rand_chance_inc = 0.005;
-			var ms_level_count = 10;
-			var ms_level_length = 500;
-			var ms_chance_base = 0.01;
-			var ms_chance_inc = 0.005;
-			
-			var ran = "host_writeconfig minesweeper_backup\n";
-
-			ran += "\nbind w +minesweeper_w\n";
-			ran += "bind a +minesweeper_a\n";
-			ran += "bind s +minesweeper_s\n";
-			ran += "bind d +minesweeper_d\n";
-			ran += "bind mouse1 +minesweeper_mouse1\n";
-			ran += "bind mouse2 +minesweeper_mouse2\n";
-			ran += "\nalias step_message \"say *steps on a landmine*\"\n";
-			ran += "alias avoid_message \"say *avoids a landmine*\"\n";
-			ran += "alias load_message \"say Minesweeper CS:GO Edition Loaded!\"\n";
-			ran += "alias win_message \"say Level " + rand_levels + " Completed! You Win!\"\n";
-			ran += "alias gameover_message_0 \"echo Thanks for playing Minesweeper CS:GO Edition!\"\n";
-			ran += "alias gameover_message_1 \"echo Better Luck Next Time!\"\n";
-			ran += "alias gameover_message_2 \"echo Your config has been restored.\"\n";
-			
-			ran += "\nalias +suprise_fire detonate_0\n";
-			ran += "alias -suprise_fire detonate_0\n";
-			
-			ran += "\nalias detonate_0 \"step_message;bind w detonate_1; bind a detonate_1;bind s detonate_1;bind d detonate_1;bind mouse1 detonate_1;bind mouse2 detonate_1\"\n";
-			ran += "alias detonate_1 \"disconnect;exec minesweeper_backup;toggleconsole;gameover_message_0;gameover_message_1;gameover_message_2\"\n";
-			
-			ran += "\nalias +random_w \"+forward;random\"\n";
-			ran += "alias -random_w \"-forward;random\"\n";
-			ran += "alias +random_a \"+moveleft;random\"\n";
-			ran += "alias -random_a \"-moveleft;random\"\n";
-			ran += "alias +random_s \"+back;random\"\n";
-			ran += "alias -random_s \"-back;random\"\n";
-			ran += "alias +random_d \"+moveright;random\"\n";
-			ran += "alias -random_d \"-moveright;random\"\n";
-			ran += "alias +random_fire \"+attack;\"\n";
-			ran += "alias -random_fire \"-attack;random\"\n\n";
-			
-			for(var level = 1; level <= rand_levels; level++){
-				ran += "alias level_message_" + (level) + " \"say Level " + (level) + " Reached! Mine Frequency: " + Math.round((rand_chance + rand_chance_inc * (level-1))*1000)/1000 + "\"\n";
-			}
-			ran += "\nalias minesweeper_step_message \"say *steps on a landmine*\"\n";
-			ran += "alias minesweeper_avoid_message \"say *avoids a landmine*\"\n";
-			ran += "alias minesweeper_load_message \"say Minesweeper CS:GO Edition Loaded!\"\n";
-			ran += "alias minesweeper_win_message \"say Level " + ms_level_count + " Completed! You Win!\"\n\n";
-			
-			for(var level = 1; level <= ms_level_count; level++){
-				ran += "alias minesweeper_level_message_" + (level) + " \"say Level " + (level) + " Reached! Landmine frequency: " + (Math.round((ms_chance_base + ms_chance_inc * (level-1))*1000)/1000) + "\"\n";
-			}
-			
-			ran += "\nalias minesweeper_det_0 \"step_message;bind w minesweeper_det_1; bind a minesweeper_det_1; bind s minesweeper_det_1; bind d minesweeper_det_1;bind mouse1 minesweeper_det_1;bind mouse2 minesweeper_det_1\"\n";
-			ran += "alias minesweeper_det_1 \"disconnect;exec minesweeper_backup\"\n";
-			
-			ran += "\nalias +minesweeper_w \"+forward;minesweeper_rand\"\n";
-			ran += "alias -minesweeper_w \"-forward;minesweeper_rand\"\n";
-			ran += "alias +minesweeper_a \"+moveleft;minesweeper_rand\"\n";
-			ran += "alias -minesweeper_a \"-moveleft;minesweeper_rand\"\n";
-			ran += "alias +minesweeper_s \"+back;minesweeper_rand\"\n";
-			ran += "alias -minesweeper_s \"-back;minesweeper_rand\"\n";
-			ran += "alias +minesweeper_d \"+moveright;minesweeper_rand\"\n";
-			ran += "alias -minesweeper_d \"-moveright;minesweeper_rand\"\n";
-			ran += "alias +minesweeper_mouse1 \"+attack\"\n";
-			ran += "alias -minesweeper_mouse1 \"-attack;minesweeper_rand\"\n";
-			ran += "alias +minesweeper_mouse2 \"+attack2;minesweeper_rand\"\n";
-			ran += "alias -minesweeper_mouse2 \"-attack2;minesweeper_rand\"\n";
-			
-			ran += "\nalias minesweeper_mine_on \"bind mouse1 +minesweeper_det_0\"\n";
-			ran += "alias minesweeper_mine_off \"bind mouse1 +minesweeper_mouse1\"\n";
-			ran += "\nalias random random_1_0_0\n";
-			
-			for(var level = 1; level <=  rand_levels; level++ ){
-				ran += "alias random_" + (level) + "_0_0 \"suprise_disconnect_off;level_message_" + (level) + ";alias random random_" + (level) + "_1_0\"\n";
-				for(var i = 1; i < rand_level_length; i++){
-					if(Math.random() > 1-(rand_chance + rand_chance_inc * (level-1))){
-						ran += "alias random_" + (level) + "_" + (i) + "_0 \"suprise_disconnect_on; alias random random_" + (level) + "_" + (i) + "_1\"\n";
-						ran += "alias random_" + (level) + "_" + (i) + "_1 \"suprise_disconnect_off; avoid_message; alias random random_" + (level) + "_" + (i+1) + "_0\"\n";
-					} else {
-						ran += "alias random_" + (level) + "_" + (i) + "_0 \"suprise_disconnect_off; alias random random_" + (level) + "_" + (i+1) + "_0\"\n";
-					}
-				}
-				ran += "alias random_" + (level) + "_" + (rand_level_length) + "_0 \"suprise_disconnect_off; alias random random_" + (level+1) + "_0_0\"\n";
-			}
-			ran += "alias random_" + (rand_levels+1) + "_0_0 \"exec minesweeper_backup; win_message \"\n";
-			
-			ran += "\nalias minesweeper_rand minesweeper_rand_0_0\n";
-			for(var level = 1; level <= ms_level_count; level++){
-				ran += "alias minesweeper_rand_" + (level) + "_0_0 \"minesweeper_mine_off;minesweeper_level_message_" + (level) + ";alias minesweeper_rand minesweeper_rand_" + (level) + "_1_0\"\n";
-				for(var i = 1; i < ms_level_length; i++){
-					if(Math.random() > 1-(ms_chance_base + ms_chance_inc * (level-1))){
-						ran += "alias minesweeper_rand_" + (level) + "_" + (i) + "_0 \"minesweeper_mine_on; alias minesweeper_rand minesweeper_rand_" + (level) + "_" + (i) + "_1\"\n";
-						ran += "alias minesweeper_rand_" + (level) + "_" + (i) + "_1 \"minesweeper_mine_off; minesweeper_avoid_message; alias minesweeper_rand minesweeper_rand_" + (level) + "_" + (i+1) + "_0\"\n";
-					} else {
-						ran += "alias minesweeper_rand_" + (level) + "_" + (i) + "_0 \"minesweeper_mine_off; alias minesweeper_rand minesweeper_rand_" + (level) + "_" + (i+1) + "_0\"\n";
-					}
-				}
-				ran += "alias minesweeper_rand_" + (level) + "_" + (ms_level_length) + "_0 \"minesweeper_mine_off; alias minesweeper_rand minesweeper_rand_" + (level+1) + "_0_0\"\n";
-			}
-			ran += "alias minesweeper_rand_" + (ms_level_count + 1) + "_0_0 \"minesweeper_win_message;exec minesweeper_backup;\"\n";
-
-			ran += "\nminesweeper_load_message\n";
-			
-			document.getElementById("random").value = ran;
-			
-		}
 	</script>
 </head>
 <body>
@@ -325,8 +216,5 @@
 	Import:<br />
 	<textarea id="import" cols="100" rows="15"></textarea><br />
 	<button onclick=importBinds()>Import</button><br />
-	Minesweeper:<br />
-	<textarea id="random" cols="100" rows="15"></textarea><br />
-	<button onclick=generateRandomBind()>Generate</button><br />
 </body>
 </html>
